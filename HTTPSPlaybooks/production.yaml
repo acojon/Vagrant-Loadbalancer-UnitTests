@@ -1,0 +1,10 @@
+WebServers:
+  hosts:
+    node-1:
+    node-2:
+LoadBalancers:
+  hosts:
+    lb:
+UnitTest:
+  hosts:
+    testing:

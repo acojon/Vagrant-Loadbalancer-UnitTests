@@ -1,0 +1,5 @@
+- hosts: LoadBalancers
+  become: yes
+  roles:
+    - LocalHostsFile
+    - LoadBalancer

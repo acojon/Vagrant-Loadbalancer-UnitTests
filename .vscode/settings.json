@@ -1,0 +1,30 @@
+{
+    "cSpell.words": [
+        "And",
+        "And’s",
+        "But",
+        "But’s",
+        "CSRs",
+        "INET",
+        "RDWR",
+        "ansible",
+        "chmod",
+        "cpus",
+        "cucumberjson",
+        "dircolors",
+        "eval",
+        "gethostbyname",
+        "hostvars",
+        "insertbefore",
+        "lineinfile",
+        "loadbalancer",
+        "nodename",
+        "openssl",
+        "pytest",
+        "s",
+        "selfsigned",
+        "vlan",
+        "vmname",
+        "webserver"
+    ]
+}

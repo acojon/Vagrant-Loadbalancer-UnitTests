@@ -1,0 +1,3 @@
+# ca role defaults
+---
+ca_csr: "{{ ca_directory }}/ca.csr"

@@ -1,0 +1,15 @@
+---
+- hosts: UnitTest
+  become: yes
+  vars:
+    geckodriver_prefix: "/usr/local/bin"
+  roles:
+    - display
+    - pytest
+  tasks:
+    - name: "Add site.fake.com to hosts file"
+      replace:
+        path: /etc/hosts
+        regexp: '^(\d+\.\d+\.\d+\.\d+\s+lb)$'
+        replace: '\1 site.fake.com'
+        backup: yes

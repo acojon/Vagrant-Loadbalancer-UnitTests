@@ -1,0 +1,51 @@
+# LocalHostsFile Role Tasks
+---
+- name: Linux OS hosts file
+  block:
+  - name: Add the Linux inventory into /etc/hosts
+    lineinfile:
+      dest: /etc/hosts
+      regexp: '.*{{ item }}$'
+      line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{item}}"
+      state: present
+    when: hostvars[item]['ansible_facts']['default_ipv4'] is defined
+    with_items:
+      - "{{ groups['all'] }}"
+    become: yes
+
+  - name: Add the Windows inventory into /etc/hosts
+    lineinfile:
+      dest: /etc/hosts
+      regexp: '.*{{ item }}$'
+      line: "{{ hostvars[item]['ansible_ip_addresses'][0] }} {{item}}"
+      state: present
+    when: hostvars[item]['ansible_ip_addresses'] is defined
+    with_items:
+      - "{{ groups['all'] }}"
+    become: yes
+  when: ansible_distribution == 'Debian' or
+        ansible_distribution == 'Ubuntu'
+
+- name: Windows OS hosts file
+  block:
+  - name: Add the Linux inventory into c:\windows\system32\drivers\etc\hosts
+    win_lineinfile:
+      dest: c:\windows\system32\drivers\etc\hosts
+      regexp: '.*{{ item }}$'
+      line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{item}}"
+      state: present
+    when: hostvars[item]['ansible_facts']['default_ipv4'] is defined
+    with_items:
+      - "{{ groups['all'] }}"
+
+  - name: Add the Windows inventory into c:\windows\system32\drivers\etc\hosts
+    win_lineinfile:
+      dest: c:\windows\system32\drivers\etc\hosts
+      regexp: '.*{{ item }}$'
+      line: "{{ hostvars[item]['ansible_ip_addresses'][0] }} {{item}}"
+      state: present
+    when: hostvars[item]['ansible_ip_addresses'] is defined
+    with_items:
+      - "{{ groups['all'] }}"
+  when: (ansible_distribution == 'Microsoft Windows Server 2019 Standard Evaluation') or
+        (ansible_distribution == 'Microsoft Windows Server 2019 Datacenter Evaluation')

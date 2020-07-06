@@ -1,0 +1,4 @@
+- hosts: LoadBalancers
+  become: yes
+  roles:
+    - LoadBalancer

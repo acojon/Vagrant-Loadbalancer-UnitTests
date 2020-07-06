@@ -1,0 +1,56 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+    - name: "Create {{ load_balancer_cert_merge_directory }}"
+      file:
+        path: "{{ load_balancer_cert_merge_directory }}"
+        state: directory
+        mode: "0755"
+
+    - name: Create frontend load balancer certificate private key
+      openssl_privatekey:
+        path: "{{ load_balancer_private_key_path }}"
+        state: present
+        size: "2048"
+        mode: "0644"
+
+    - name: Create frontend load balancer csr
+      openssl_csr:
+        path: "{{ load_balancer_csr_path }}"
+        privatekey_path: "{{ load_balancer_private_key_path }}"
+        country_name: "{{ country_name }}"
+        state_or_province_name: "{{ state_or_province_name }}"
+        locality_name: "{{ locality_name }}"
+        organization_name: "{{ organization_name }}"
+        email_address: "{{ email_address }}"
+        common_name: "{{ site_name }}"
+
+    - name: Create frontend load balancer certificate
+      openssl_certificate:
+        path: "{{ load_balancer_cert_path }}"
+        csr_path: "{{ load_balancer_csr_path }}"
+        ownca_path: "{{ ca_cert_path }}"
+        ownca_privatekey_path: "{{ ca_private_key }}"
+        provider: ownca
+
+    - name: Copy frontend load balancer cert to merge folder
+      copy:
+        src: "{{ load_balancer_cert_path }}"
+        dest: "{{ load_balancer_cert_merge_directory }}/1.{{ load_balancer_cert_name }}"
+
+    - name: Copy frontend load balancer key to merge folder
+      copy:
+        src: "{{ load_balancer_private_key_path }}"
+        dest: "{{ load_balancer_cert_merge_directory }}/2.{{ load_balancer_private_key_name }}"
+
+    - name: "Copy CA Public Cert to merge folder"
+      copy:
+        src: "{{ ca_cert_path }}"
+        dest: "{{ merge_directory }}/3.{{ ca_cert_name }}"
+
+    - name: Create pem file
+      assemble:
+        src: "{{ load_balancer_cert_merge_directory }}"
+        dest: "{{ load_balancer_pem_path }}"

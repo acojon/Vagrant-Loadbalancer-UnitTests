@@ -1,0 +1,4 @@
+#
+---
+- name: update trusted ca debian
+  shell: /usr/sbin/update-ca-certificates

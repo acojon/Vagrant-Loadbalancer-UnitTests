@@ -1,0 +1,4 @@
+# display role vars
+---
+packages:
+  - xserver-xorg-core

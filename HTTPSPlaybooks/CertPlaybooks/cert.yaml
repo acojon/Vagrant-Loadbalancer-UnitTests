@@ -1,0 +1,60 @@
+# This play is built to be called using with_items: "{{ groups['WebServers'] }}"
+# from another play.
+---
+- debug:
+    msg: "{{ item }}"
+
+- name: Set variables
+  set_fact:
+    merge_directory: "{{ cert_directory }}/{{ item }}_merge"
+    private_key_path: "{{ cert_directory }}/{{ item }}.key"
+    csr_path: "{{ cert_directory }}/{{ item }}.csr"
+    cert_path: "{{ cert_directory }}/{{ item }}.crt"
+    pem_path: "{{ cert_directory }}/{{ item }}-bundle.crt"
+
+- name: "Create {{ merge_directory }}"
+  file:
+    path: "{{ merge_directory }}"
+    state: directory
+    mode: "0755"
+
+- name: "Create {{ item }} certificate private key"
+  openssl_privatekey:
+    path: "{{ private_key_path }}"
+    state: present
+    size: "2048"
+    mode: "0644"
+
+- name: "Create {{ item }} csr"
+  openssl_csr:
+    path: "{{ csr_path }}"
+    privatekey_path: "{{ private_key_path }}"
+    country_name: "{{ country_name }}"
+    state_or_province_name: "{{ state_or_province_name }}"
+    locality_name: "{{ locality_name }}"
+    organization_name: "{{ organization_name }}"
+    email_address: "{{ email_address }}"
+    common_name: "{{ item }}"
+
+- name: "Create {{ item }} certificate"
+  openssl_certificate:
+    path: "{{ cert_path }}"
+    csr_path: "{{ csr_path }}"
+    ownca_path: "{{ ca_cert_path }}"
+    ownca_privatekey_path: "{{ ca_private_key }}"
+    provider: ownca
+
+- name: "Copy {{ item }} certificate to merge folder"
+  copy:
+    src: "{{ cert_path }}"
+    dest: "{{ merge_directory }}/1.{{ item }}.crt"
+
+- name: "Copy CA Public Cert to merge folder"
+  copy:
+    src: "{{ ca_cert_path }}"
+    dest: "{{ merge_directory }}/2.{{ ca_cert_name }}"
+
+- name: Create {{ item }}-bundle.crt file
+  assemble:
+    src: "{{ merge_directory }}"
+    dest: "{{ pem_path }}"

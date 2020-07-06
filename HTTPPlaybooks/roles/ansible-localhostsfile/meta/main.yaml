@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  author: Jon Schow
+  description: Populate Local Hosts file on Linux and Windows hosts, with all of the hosts in Ansible Inventory file.
+  company: na
+  min_ansible_version: 2.0
+
+dependencies: []

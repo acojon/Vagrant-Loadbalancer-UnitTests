@@ -1,0 +1,11 @@
+# pytest role tasks
+---
+- name: Install packages
+  apt:
+    name: "{{ packages }}"
+    state: present
+
+- name: Install pip3 modules
+  pip:
+    name: "{{ pip_modules }}"
+    executable: /usr/bin/pip3

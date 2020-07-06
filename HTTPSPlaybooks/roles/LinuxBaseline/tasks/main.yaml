@@ -1,0 +1,52 @@
+# LinuxBaseline role tasks
+---
+- name: apt-get install python-apt
+  apt:
+    name: python-apt
+    update_cache: yes
+  become: yes
+
+- name: Turn on dircolors
+  replace:
+    dest: /root/.bashrc
+    regexp: '^# eval "`dircolors`"$'
+    replace: 'eval "`dircolors`"'
+    # backup: yes
+
+- name: Export LS_Options
+  replace:
+    dest: /root/.bashrc
+    regexp: '^# export LS_OPTIONS=''--color=auto''$'
+    replace: 'export LS_OPTIONS=''--color=auto'''
+    # backup: yes
+
+- name: Alias ll to ls -la
+  replace:
+    dest: /root/.bashrc
+    regexp: '^# alias ll=''ls \$LS_OPTIONS -l''$'
+    replace: 'alias ll=''ls $LS_OPTIONS -la'''
+    # backup: yes
+
+- name: Alias ll to ls -la
+  replace:
+    dest: /home/vagrant/.bashrc
+    regexp: '^#\s?alias ll=''ls -l''$'
+    replace: 'alias ll=''ls -la'''
+
+- name: Set timezone to America/Denver
+  timezone:
+    name: "America/Denver"
+
+# When this task runs on the localhost, the CA certificate has not yet been
+# created.  Skip this step for localhost, the CA role will perform this task
+# on the localhost.
+- name: copy certificate authority to trusted ca path of the os
+  copy:
+    src: "{{ ca_cert_path }}"
+    dest: /usr/local/share/ca-certificates
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - update trusted ca debian
+  when: not inventory_hostname == "127.0.0.1"

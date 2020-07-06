@@ -1,0 +1,46 @@
+# WebServer role tasks
+---
+- name: Install nginx
+  apt:
+    name: nginx
+    update_cache: yes
+    state: present
+
+- name: delete default site config file
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify:
+    - restart nginx
+
+- name: Copy site config file
+  template:
+    src: roles/WebServer/files/site
+    dest: /etc/nginx/sites-enabled
+  notify:
+    - restart nginx
+
+- name: Copy certificate
+  copy:
+    src: "{{ cert_directory }}/{{ ansible_facts['nodename'] }}-bundle.crt"
+    dest: "{{ webserver_cert_directory }}"
+  notify:
+    - restart nginx
+
+- name: Copy key
+  copy:
+    src: "{{ cert_directory }}/{{ ansible_facts['nodename'] }}.key"
+    dest: "{{ webserver_cert_directory }}"
+  notify:
+    - restart nginx
+
+# Add the node's hostname to the html file.  This allows you to see which
+# host you are connected to through the load balancer
+- name: "Add {{ ansible_facts['nodename'] }} to html file"
+  lineinfile:
+    path: /var/www/html/index.nginx-debian.html
+    regexp: "^<p>{{ ansible_facts['nodename'] }}<\\/p>$"
+    line: "<p>{{ ansible_facts['nodename'] }}</p>"
+    insertbefore: '^<\/body>$'
+    state: present
+    backup: yes

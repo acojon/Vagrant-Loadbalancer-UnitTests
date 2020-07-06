@@ -1,0 +1,75 @@
+# LoadBalancer Role Tasks
+---
+- name: Install gnupg2
+  apt:
+    name: gnupg2
+    state: present
+    update_cache: yes
+
+- name: Create HAProxy group
+  group:
+    name: HAProxy
+    state: present
+
+- name: Create HAProxy User
+  user:
+    name: HAProxy
+    group: HAProxy
+    shell: '/usr/sbin/nologin'
+
+- name: Copy frontend load balancer pem
+  copy:
+    src: "{{ load_balancer_pem_path }}"
+    dest: "{{ load_balancer_cert_directory }}"
+  notify: 
+    - restart haproxy
+
+- name: Copy ca certificate to load balancer
+  copy:
+    src: "{{ ca_cert_path }}"
+    dest: "{{ load_balancer_cert_directory }}"
+  notify: 
+    - restart haproxy
+
+- name: Add haproxy repository key
+  apt_key:
+    url: "https://haproxy.debian.net/bernat.debian.org.gpg"
+
+- name: Add haproxy v 2.0 repository
+  apt_repository:
+    repo: "deb http://haproxy.debian.net buster-backports-2.1 main"
+
+- name: apt-get install haproxy 2.0.Something
+  apt:
+    name: haproxy=2.1.*
+    update_cache: yes
+    state: present
+
+- name: Configure HAProxy
+  blockinfile:
+    path: /etc/haproxy/haproxy.cfg
+    block: |
+      frontend stats
+        mode http
+        bind *:8404
+        stats enable
+        stats admin if TRUE
+        stats uri /stats
+        stats refresh 5s
+
+      frontend {{ site_name }}
+        # bind *:80
+        bind *:443 ssl crt {{ load_balancer_cert_directory }}/{{ load_balancer_pem_name }}
+        redirect scheme https if !{ ssl_fc }
+        mode http
+        default_backend back_http
+
+      backend back_http
+        balance roundrobin
+        # server node-1 node-1:80 check
+        # server node-2 node-2:80 check
+        server node-1 node-1:443 check ssl verify required ssl-min-ver TLSv1.2 ca-file {{ load_balancer_cert_directory }}/{{ ca_cert_name }}
+        server node-2 node-2:443 check ssl verify required ssl-min-ver TLSv1.2 ca-file {{ load_balancer_cert_directory }}/{{ ca_cert_name }}
+    backup: yes
+  notify: 
+    - restart haproxy

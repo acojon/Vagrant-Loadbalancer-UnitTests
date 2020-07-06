@@ -1,0 +1,8 @@
+# site
+---
+- import_playbook: AnsibleHostConfig.yaml
+- import_playbook: LinuxBaselineConfig.yaml
+- import_playbook: ConfigureCerts.yaml
+- import_playbook: WebServerConfig.yaml
+- import_playbook: LoadBalancerConfig.yaml
+- import_playbook: PyTestConfig.yaml

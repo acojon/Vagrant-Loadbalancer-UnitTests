@@ -1,0 +1,5 @@
+- src: git@gitlab:jon/ansible-linuxbaselinedebian.git
+  scm: git
+
+- src: git@gitlab:jon/ansible-localhostsfile.git
+  scm: git

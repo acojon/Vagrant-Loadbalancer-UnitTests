@@ -1,0 +1,51 @@
+# Vars shared by all of the ansible plays
+
+# The settings to create the website name; i.e., site.fake.com.  Change the
+# dns_zone_name and website_host_name variables, not the site_name variable :)
+# Website Host Name; i.e., site
+website_host_name: "site"
+
+# DNS Zone Name; i.e., fake.com
+dns_zone_name: "fake.com"
+
+# Name of the website - site Name; i.e., site.fake.com
+# site_name: site.fake.com
+site_name: "{{ website_host_name }}.{{ dns_zone_name }}"
+
+
+# Contains the ca cert and support cert files names and path values
+ca_directory: "/home/vagrant/ca"
+ca_cert_path: "{{ ca_directory }}/{{ ca_cert_name }}"
+ca_cert_name: "ca-signed.crt"
+ca_private_key: "{{ ca_directory }}/ca_private_key.pem"
+
+# Contains the certificates, keys, CSRs and other misc cert files
+cert_directory: "{{ ca_directory }}/certs"
+
+
+# CSR Values
+country_name: "US"
+state_or_province_name: "CO"
+locality_name: "Denver"
+organization_name: "TestCompany"
+email_address: "fake@{{ dns_zone_name }}"
+
+# These variables are for the frontend loadbalancer so it can use HTTPS.  There
+# are a lot of them here.  This is because I don't know how to set a variable's
+# value in one play and pass that on to the next.  If I can get that figured
+# out, come back here and clean up these variables :)
+load_balancer_cert_path: "{{ cert_directory }}/{{ load_balancer_cert_name }}"
+load_balancer_cert_name: "{{ site_name }}.crt"
+
+load_balancer_csr_path: "{{ cert_directory }}/{{ load_balancer_csr_name }}"
+load_balancer_csr_name: "{{ site_name }}.csr"
+
+load_balancer_pem_path: "{{ cert_directory }}/{{ load_balancer_pem_name }}"
+load_balancer_pem_name: "{{ site_name }}.pem"
+
+load_balancer_private_key_path: "{{ cert_directory }}/{{ load_balancer_private_key_name }}"
+load_balancer_private_key_name: "{{ site_name }}.key"
+
+# If I need to merge certificate and key files into a .pem file, this is the
+# root directory for those merges.
+load_balancer_cert_merge_directory: "{{ cert_directory }}/load_balancer_merge"

@@ -1,0 +1,8 @@
+.vagrant/*
+.ansible_keys/*
+hosts.ini
+id_rsa*
+ipaddress.txt
+share.yaml
+AnsiblePlaybooks/roles/ansible-*
+*__pycache__*

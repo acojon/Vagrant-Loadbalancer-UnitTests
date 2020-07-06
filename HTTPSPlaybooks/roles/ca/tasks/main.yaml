@@ -1,0 +1,54 @@
+# CA role tasks
+---
+- name: Install ca-certificates module
+  apt:
+    name: ca-certificates
+    state: present
+    update_cache: yes
+
+- name: "Create {{ ca_directory }}"
+  file:
+    path: "{{ ca_directory }}"
+    state: directory
+    mode: "0755"
+
+- name: "Create {{ cert_directory }}"
+  file:
+    path: "{{ cert_directory }}"
+    state: directory
+    mode: "0755"
+
+- name: Create the CA private key
+  openssl_privatekey:
+    path: "{{ ca_private_key }}"
+    state: present
+
+# Add the basic constraint of CA:True, so that things know this is a CA Cert :)
+- name: Create the CA CSR
+  openssl_csr:
+    path: "{{ ca_csr }}"
+    privatekey_path: "{{ ca_private_key }}"
+    country_name: "{{ country_name }}"
+    state_or_province_name: "{{ state_or_province_name }}"
+    locality_name: "{{ locality_name }}"
+    organization_name: "{{ organization_name }}"
+    email_address: "{{ email_address }}"
+    common_name: "{{ dns_zone_name }}"
+    basic_constraints: "CA:TRUE"
+
+- name: Create the CA Certificate
+  openssl_certificate:
+    path: "{{ ca_cert_path }}"
+    privatekey_path: "{{ ca_private_key }}"
+    csr_path: "{{ ca_csr }}"
+    provider: selfsigned
+
+- name: copy certificate authority to trusted ca path of the os
+  copy:
+    src: "{{ ca_cert_path }}"
+    dest: /usr/local/share/ca-certificates
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - update trusted ca debian

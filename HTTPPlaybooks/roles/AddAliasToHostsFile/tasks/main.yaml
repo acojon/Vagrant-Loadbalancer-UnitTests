@@ -1,0 +1,7 @@
+---
+- name: Add alias for lb
+  replace:
+    path: /etc/hosts
+    regexp: '^(\d+\.\d+\.\d+\.\d+\s+lb)$'
+    replace: '\1 {{ site_name }}'
+    backup: yes

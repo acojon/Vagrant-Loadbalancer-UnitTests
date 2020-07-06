@@ -1,0 +1,18 @@
+# WebServer role tasks
+---
+- name: Install nginx
+  apt:
+    name: nginx
+    update_cache: yes
+    state: present
+
+# Add the node's hostname to the html file.  This allows you to see which
+# host you are connected to through the load balancer
+- name: "Add {{ ansible_facts['nodename'] }} to html file"
+  lineinfile:
+    path: /var/www/html/index.nginx-debian.html
+    regexp: "^<p>{{ ansible_facts['nodename'] }}<\\/p>$"
+    line: "<p>{{ ansible_facts['nodename'] }}</p>"
+    insertbefore: ^<\/body>$
+    state: present
+    backup: yes

@@ -1,0 +1,3 @@
+---
+- import_playbook: CertPlaybooks/WebServerCertConfig.yaml
+- import_playbook: CertPlaybooks/LoadBalancerCertConfig.yaml

@@ -1,0 +1,13 @@
+# pytest role vars
+---
+packages:
+  - python3-pip
+  - firefox
+  - firefox-geckodriver
+  - python3-selenium
+  - firefoxdriver
+
+pip_modules:
+  - pytest
+  - pytest-bdd
+  - selenium

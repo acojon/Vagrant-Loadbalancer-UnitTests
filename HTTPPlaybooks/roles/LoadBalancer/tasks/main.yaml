@@ -1,0 +1,57 @@
+# LoadBalancer Role Tasks
+---
+- name: Install gnupg2
+  apt:
+    name: gnupg2
+    state: present
+    update_cache: yes
+
+- name: Create HAProxy group
+  group:
+    name: HAProxy
+    state: present
+
+- name: Create HAProxy User
+  user:
+    name: HAProxy
+    group: HAProxy
+    shell: '/usr/sbin/nologin'
+
+- name: Add haproxy repository key
+  apt_key:
+    url: "https://haproxy.debian.net/bernat.debian.org.gpg"
+
+- name: Add haproxy v 2.0 repository
+  apt_repository:
+    repo: "deb http://haproxy.debian.net buster-backports-2.1 main"
+
+- name: apt-get install haproxy 2.0.Something
+  apt:
+    name: haproxy=2.1.*
+    update_cache: yes
+    state: present
+
+- name: Configure HAProxy
+  blockinfile:
+    path: /etc/haproxy/haproxy.cfg
+    block: |
+      frontend stats
+        bind *:8404
+        mode http
+        stats enable
+        stats admin if TRUE
+        stats uri /stats
+        stats refresh 5s
+
+      frontend {{ site_name }}
+        bind *:80
+        mode http
+        default_backend back_http
+
+      backend back_http
+        balance roundrobin
+        server node-1 node-1:80 check
+        server node-2 node-2:80 check
+    backup: yes
+  notify: 
+    - restart haproxy

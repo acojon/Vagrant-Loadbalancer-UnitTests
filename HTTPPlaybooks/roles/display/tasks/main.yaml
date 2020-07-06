@@ -1,0 +1,14 @@
+# display role tasks
+---
+- name: apt-get install modules
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+  become: yes
+
+- name: Update sshd_config X11Uselocalhost no
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: X11Uselocalhost no
+  notify:
+    - restart ssh

@@ -1,0 +1,3 @@
+# LoadBalancer role defaults
+---
+load_balancer_cert_directory: /etc/ssl

@@ -1,0 +1,8 @@
+---
+- hosts: UnitTest
+  become: yes
+  vars:
+    geckodriver_prefix: "/usr/local/bin"
+  roles:
+    - display
+    - pytest
